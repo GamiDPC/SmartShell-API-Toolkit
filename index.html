@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShell - Инвентаризация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container" id="app">
+        <div id="loginScreen" class="">
+            <div class="header">
+                <h1>SmartShell Инвентаризация</h1>
+                <div class="theme-toggle">
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider round">
+                            <span class="theme-icon sun">☀️</span>
+                            <span class="theme-icon moon">🌙</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="card login-form">
+                <div class="card-header">
+                    <div class="card-title">Вход в систему</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Телефон (без +)</label>
+                    <input type="text" id="username" autocomplete="on" placeholder="Введите телефон или email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" autocomplete="on" placeholder="Введите пароль">
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyId">ID клуба</label>
+                    <input type="text" id="companyId" autocomplete="on" placeholder="Введите ID вашего клуба">
+                    <small style="font-size: 12px; color: var(--text-secondary);">ID можно найти в админке SmartShell (<a href="https://ibb.co/fC2m0gD" target="_blank">как узнать?</a>)</small>
+                </div>
+                
+                <div id="loginError" class="alert danger" style="display: none;">
+                    Неверный логин или пароль
+                </div>
+                
+                <button id="loginButton" class="button" style="width: 100%;">
+                    Войти
+                    <span id="loginLoader" class="loader hidden"></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mainScreen" class="hidden">
+            <div class="header">
+                <h1>SmartShell Инвентаризация</h1>
+                <div style="display: flex; align-items: center; height: 100%;">
+                    <div>
+                        <button id="refreshGoods" class="button secondary">Обновить данные</button>
+                        <button id="resetButton" class="button secondary">Сбросить</button>
+                        <button id="logoutButton" class="button secondary">Выйти</button>
+                    </div>
+                    <div class="theme-toggle">
+                        <label class="theme-switch">
+                            <input type="checkbox" id="themeToggleMain">
+                            <span class="slider round">
+                                <span class="theme-icon sun">☀️</span>
+                                <span class="theme-icon moon">🌙</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="successAlert" class="alert success">
+                Отчет успешно отправлен в Telegram!
+            </div>
+
+            <div id="errorAlert" class="alert danger">
+                Произошла ошибка при отправке отчета.
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Список товаров</div>
+                    <div style="display: flex; gap: 10px;">
+                        <div>
+                            <button id="hideEmptyButton" class="button secondary">Скрыть пустые</button>
+                            <button id="showAllButton" class="button secondary">Показать все</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="inventoryGrid" class="inventory-grid">
+                </div>
+            </div>
+
+            <div class="report-section">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-title">По базе</div>
+                        <div id="totalInDb" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-card primary">
+                        <div class="stat-title">Фактически</div>
+                        <div id="totalActual" class="stat-value">0</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-title">Расхождения</div>
+                        <div id="totalDiscrepancies" class="stat-value">0</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Расхождения</div>
+                    </div>
+                    <div id="discrepancyList">
+                        <div class="discrepancy-item">Нет расхождений</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="sendReportButton" class="button">Отправить отчет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
