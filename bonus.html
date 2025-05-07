@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShell - Выдача бонусов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="header">
+            <h1>SmartShell - Выдача бонусов</h1>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="logoutButton" class="button secondary">Выйти</button>
+                <div class="theme-toggle">
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider round">
+                            <span class="theme-icon sun">☀️</span>
+                            <span class="theme-icon moon">🌙</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="topLoadingBar" class="top-loading-bar"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Фильтры</div>
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="searchInput">Поиск</label>
+                    <input type="text" id="searchInput" placeholder="Поиск по имени, телефону...">
+                </div>
+                <div class="filter-group">
+                    <label>Депозит</label>
+                    <div class="range-inputs">
+                        <input type="number" id="minDepositFilter" placeholder="От" min="0">
+                        <input type="number" id="maxDepositFilter" placeholder="До" min="0">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Бонус</label>
+                    <div class="range-inputs">
+                        <input type="number" id="minBonusFilter" placeholder="От" min="0">
+                        <input type="number" id="maxBonusFilter" placeholder="До" min="0">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Часов</label>
+                    <div class="range-inputs">
+                        <input type="number" id="minHoursFilter" placeholder="От" min="0">
+                        <input type="number" id="maxHoursFilter" placeholder="До" min="0">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Скидка</label>
+                    <div class="range-inputs">
+                        <input type="number" id="minDiscountFilter" placeholder="От" min="0" max="100">
+                        <input type="number" id="maxDiscountFilter" placeholder="До" min="0" max="100">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Последняя активность</label>
+                    <div class="date-filter">
+                        <select id="activityFilterType" class="date-filter-type">
+                            <option value="none">Не указано</option>
+                            <option value="before">До</option>
+                            <option value="after">После</option>
+                        </select>
+                        <input type="date" id="activityFilterDate">
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Дата регистрации</label>
+                    <div class="date-filter">
+                        <select id="registrationFilterType" class="date-filter-type">
+                            <option value="none">Не указано</option>
+                            <option value="before">До</option>
+                            <option value="after">После</option>
+                        </select>
+                        <input type="date" id="registrationFilterDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Список клиентов</div>
+            </div>
+            <div id="clientsGrid" class="clients-grid">
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAllCheckbox">
+                            </th>
+                            <th class="name-column">Имя</th>
+                            <th>Телефон</th>
+                            <th>Депозит</th>
+                            <th>Бонус</th>
+                            <th>Часов</th>
+                            <th>Скидка</th>
+                            <th>Посл. активность</th>
+                            <th>Дата регистрации</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button id="prevPageButton" class="pagination-button">&lt; Предыдущая</button>
+                    <span class="pagination-info">
+                        <span id="currentPageInfo">0-0</span> из <span id="totalClientsInfo">0</span>
+                    </span>
+                    <button id="nextPageButton" class="pagination-button">Следующая &gt;</button>
+                    <button id="loadAllButton" class="action-button">Загрузить всех</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-content">
+                <div class="summary-title">
+                    <span>Выбрано клиентов: <strong id="selectedCount">0</strong></span>
+                    <span>Сумма бонуса: <strong id="totalBonus">0.00</strong> ₽</span>
+                    <div class="input-group mass-bonus">
+                        <input type="number" id="massBonusInput" class="input" placeholder="Сумма бонуса для выбранных клиентов" step="0.01" min="0">
+                    </div>
+                    <button id="sendBonusButton" class="button">Выдать бонусы</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingNotification" class="loading-notification" style="display: none;">
+            <div class="notification-header">
+                <div class="notification-title">Загрузка клиентов</div>
+                <button id="notificationCancelButton" class="icon-button">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="notificationText" class="notification-text">Загрузка: 0/0 страниц</div>
+            <div class="notification-progress">
+                <div id="notificationProgressBar" class="notification-progress-bar" style="width: 0%;"></div>
+            </div>
+            <button id="notificationCancelButton2" class="notification-cancel">Отменить загрузку</button>
+        </div>
+    </div>
+
+    <script src="bonus.js"></script>
+</body>
+</html> 
