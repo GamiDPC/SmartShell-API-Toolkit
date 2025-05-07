@@ -38,54 +38,288 @@
 </head>
 <body>
     <div class="container" id="app">
-        <div class="header">
-            <h1>SmartShell</h1>
-            <div class="theme-toggle">
-                <label class="theme-switch">
-                    <input type="checkbox" id="themeToggle">
-                    <span class="slider round">
-                        <span class="theme-icon sun">☀️</span>
-                        <span class="theme-icon moon">🌙</span>
-                    </span>
-                </label>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">Главное меню</div>
+        <div id="loginScreen" class="">
+            <div class="header">
+                <h1>SmartShell</h1>
+                <div class="theme-toggle">
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider round">
+                            <span class="theme-icon sun">☀️</span>
+                            <span class="theme-icon moon">🌙</span>
+                        </span>
+                    </label>
+                </div>
             </div>
             
-            <div class="main-menu">
-                <a href="Inventory.html" class="menu-button">Инвентаризация</a>
-                <a href="bonus.html" class="menu-button">Бонусы</a>
+            <div class="card login-form">
+                <div class="card-header">
+                    <div class="card-title">Вход в систему</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Телефон (без +)</label>
+                    <input type="text" id="username" autocomplete="on" placeholder="Введите телефон или email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" autocomplete="on" placeholder="Введите пароль">
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyId">ID клуба</label>
+                    <input type="text" id="companyId" autocomplete="on" placeholder="Введите ID вашего клуба">
+                    <small style="font-size: 12px; color: var(--text-secondary);">ID можно найти в админке SmartShell (<a href="https://ibb.co/fC2m0gD" target="_blank">как узнать?</a>)</small>
+                </div>
+                
+                <div id="loginError" class="alert danger" style="display: none;">
+                    Неверный логин или пароль
+                </div>
+                
+                <button id="loginButton" class="button" style="width: 100%;">
+                    Войти
+                    <span id="loginLoader" class="loader hidden"></span>
+                </button>
+            </div>
+        </div>
+
+        <div id="mainScreen" class="hidden">
+            <div class="header">
+                <h1>SmartShell</h1>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button id="logoutButton" class="button secondary">Выйти</button>
+                    <div class="theme-toggle">
+                        <label class="theme-switch">
+                            <input type="checkbox" id="themeToggleMain">
+                            <span class="slider round">
+                                <span class="theme-icon sun">☀️</span>
+                                <span class="theme-icon moon">🌙</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Главное меню</div>
+                </div>
+                
+                <div class="main-menu">
+                    <a href="Inventory.html" class="menu-button">Инвентаризация</a>
+                    <a href="bonus.html" class="menu-button">Бонусы</a>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Проверка и установка темы
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggle');
-            
-            // Проверка сохраненной темы
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
+        const API_URL = 'https://billing.smartshell.gg/api/graphql';
+
+        let userData = {
+            firstName: '',
+            phone: '',
+            token: '',
+            companyId: ''
+        };
+
+        const loginScreen = document.getElementById('loginScreen');
+        const mainScreen = document.getElementById('mainScreen');
+        const loginButton = document.getElementById('loginButton');
+        const loginLoader = document.getElementById('loginLoader');
+        const loginError = document.getElementById('loginError');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeToggleMain = document.getElementById('themeToggleMain');
+
+        function setTheme(isDarkMode) {
+            if (isDarkMode) {
                 document.body.setAttribute('data-theme', 'dark');
                 themeToggle.checked = true;
+                if (themeToggleMain) themeToggleMain.checked = true;
+                localStorage.setItem('smartshell_dark_mode', 'true');
+            } else {
+                document.body.removeAttribute('data-theme');
+                themeToggle.checked = false;
+                if (themeToggleMain) themeToggleMain.checked = false;
+                localStorage.setItem('smartshell_dark_mode', 'false');
+            }
+        }
+
+        themeToggle.addEventListener('change', () => {
+            setTheme(themeToggle.checked);
+        });
+
+        if (themeToggleMain) {
+            themeToggleMain.addEventListener('change', () => {
+                setTheme(themeToggleMain.checked);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedDarkMode = localStorage.getItem('smartshell_dark_mode') === 'true';
+            setTheme(savedDarkMode);
+            
+            const token = localStorage.getItem('smartshell_token');
+            const companyId = localStorage.getItem('smartshell_company_id');
+            
+            if (companyId) {
+                document.getElementById('companyId').value = companyId;
             }
             
-            // Обработчик переключения темы
-            themeToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    document.body.setAttribute('data-theme', 'dark');
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    document.body.removeAttribute('data-theme');
-                    localStorage.setItem('theme', 'light');
+            if (token) {
+                userData.token = token;
+                fetchUserData().then(() => {
+                    showMainScreen();
+                }).catch(() => {
+                    showLoginScreen();
+                });
+            } else {
+                showLoginScreen();
+            }
+            
+            loginButton.addEventListener('click', login);
+            document.getElementById('logoutButton').addEventListener('click', logout);
+            
+            document.getElementById('password').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    login();
                 }
             });
         });
+
+        function showLoginScreen() {
+            loginScreen.classList.remove('hidden');
+            mainScreen.classList.add('hidden');
+        }
+
+        function showMainScreen() {
+            loginScreen.classList.add('hidden');
+            mainScreen.classList.remove('hidden');
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const companyId = document.getElementById('companyId').value;
+            
+            if (!username || !password) {
+                showLoginErrorMessage('Заполните поля логина и пароля');
+                return;
+            }
+            
+            loginButton.disabled = true;
+            loginLoader.classList.remove('hidden');
+            loginError.style.display = 'none';
+            
+            try {
+                const query = `mutation login($input: LoginInput!) {
+                            login(input: $input) {
+                                access_token
+                            }
+                        }`;
+                const variables = {
+                    input: {
+                        login: username,
+                        password: password
+                    }
+                };
+                
+                if (companyId) {
+                    variables.input.company_id = parseInt(companyId, 10);
+                }
+                
+                const result = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        operationName: 'login',
+                        variables: variables,
+                        query: query
+                    })
+                }).then(response => response.json()).catch(error => {
+                    if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                        throw new Error('Ошибка кросс-доменного запроса (CORS). Пожалуйста, установите расширение для браузера, которое разрешает запросы между доменами.');
+                    }
+                    throw error;
+                });
+                
+                if (result.errors) {
+                    throw new Error(result.errors[0].message);
+                }
+                
+                if (result.data && result.data.login && result.data.login.access_token) {
+                    const token = result.data.login.access_token;
+                    userData.token = token;
+                    localStorage.setItem('smartshell_token', token);
+                    
+                    if (companyId) {
+                        userData.companyId = companyId;
+                        localStorage.setItem('smartshell_company_id', companyId);
+                    }
+                    
+                    await fetchUserData();
+                    showMainScreen();
+                } else {
+                    throw new Error('Не удалось выполнить авторизацию');
+                }
+            } catch (error) {
+                showLoginErrorMessage(error.message);
+            } finally {
+                loginButton.disabled = false;
+                loginLoader.classList.add('hidden');
+            }
+        }
+
+        function showLoginErrorMessage(message) {
+            loginError.textContent = message;
+            loginError.style.display = 'block';
+        }
+
+        async function fetchUserData() {
+            try {
+                const query = `query {
+                    me {
+                        first_name
+                        phone
+                    }
+                }`;
+                
+                const result = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${userData.token}`
+                    },
+                    body: JSON.stringify({
+                        query: query
+                    })
+                }).then(response => response.json());
+                
+                if (result.errors) {
+                    throw new Error(result.errors[0].message);
+                }
+                
+                if (result.data && result.data.me) {
+                    userData.firstName = result.data.me.first_name || '';
+                    userData.phone = result.data.me.phone || '';
+                } else {
+                    throw new Error('Не удалось получить данные пользователя');
+                }
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('smartshell_token');
+            userData.token = '';
+            userData.firstName = '';
+            userData.phone = '';
+            showLoginScreen();
+        }
     </script>
 </body>
 </html> 

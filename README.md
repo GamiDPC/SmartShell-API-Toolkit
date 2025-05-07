@@ -1,6 +1,6 @@
 # SmartShell - Инвентаризация
 
-Пример: https://gamidpc.github.io/Smartshell-inventory-api/
+Пример: https://gamidpc.github.io/SmartShell-API-Toolkit/
 
 В файле `script.js` замените значения переменных:
    ```javascript
