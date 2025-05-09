@@ -6,6 +6,18 @@
     <title>SmartShell - Выдача бонусов</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Скрываем иконки календаря в полях выбора даты */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            display: none;
+        }
+        
+        input[type="date"] {
+            appearance: textfield;
+            -webkit-appearance: textfield;
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
 <body>
     <div class="container" id="app">
@@ -65,24 +77,28 @@
                 </div>
                 <div class="filter-group">
                     <label>Последняя активность</label>
-                    <div class="date-filter">
-                        <select id="activityFilterType" class="date-filter-type">
-                            <option value="none">Не указано</option>
-                            <option value="before">До</option>
-                            <option value="after">После</option>
-                        </select>
-                        <input type="date" id="activityFilterDate">
+                    <div class="date-range-inputs">
+                        <div class="date-input-group">
+                            <label class="date-label">От</label>
+                            <input type="date" id="activityFromDate">
+                        </div>
+                        <div class="date-input-group">
+                            <label class="date-label">До</label>
+                            <input type="date" id="activityToDate">
+                        </div>
                     </div>
                 </div>
                 <div class="filter-group">
                     <label>Дата регистрации</label>
-                    <div class="date-filter">
-                        <select id="registrationFilterType" class="date-filter-type">
-                            <option value="none">Не указано</option>
-                            <option value="before">До</option>
-                            <option value="after">После</option>
-                        </select>
-                        <input type="date" id="registrationFilterDate">
+                    <div class="date-range-inputs">
+                        <div class="date-input-group">
+                            <label class="date-label">От</label>
+                            <input type="date" id="registrationFromDate">
+                        </div>
+                        <div class="date-input-group">
+                            <label class="date-label">До</label>
+                            <input type="date" id="registrationToDate">
+                        </div>
                     </div>
                 </div>
             </div>

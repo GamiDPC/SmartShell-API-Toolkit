@@ -19,10 +19,10 @@ const minHoursFilter = document.getElementById('minHoursFilter');
 const maxHoursFilter = document.getElementById('maxHoursFilter');
 const minDiscountFilter = document.getElementById('minDiscountFilter');
 const maxDiscountFilter = document.getElementById('maxDiscountFilter');
-const activityFilterType = document.getElementById('activityFilterType');
-const activityFilterDate = document.getElementById('activityFilterDate');
-const registrationFilterType = document.getElementById('registrationFilterType');
-const registrationFilterDate = document.getElementById('registrationFilterDate');
+const activityFromDate = document.getElementById('activityFromDate');
+const activityToDate = document.getElementById('activityToDate');
+const registrationFromDate = document.getElementById('registrationFromDate');
+const registrationToDate = document.getElementById('registrationToDate');
 const clientsTableBody = document.getElementById('clientsTableBody');
 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 const selectedCount = document.getElementById('selectedCount');
@@ -108,30 +108,22 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSummary();
     });
 
-    activityFilterType.addEventListener('change', () => {
-        activityFilterDate.disabled = activityFilterType.value === 'none';
-        if (activityFilterType.value === 'none') {
-            activityFilterDate.value = '';
-        }
+    activityFromDate.addEventListener('change', () => {
         renderClients();
         updateSummary();
     });
     
-    activityFilterDate.addEventListener('change', () => {
+    activityToDate.addEventListener('change', () => {
         renderClients();
         updateSummary();
     });
     
-    registrationFilterType.addEventListener('change', () => {
-        registrationFilterDate.disabled = registrationFilterType.value === 'none';
-        if (registrationFilterType.value === 'none') {
-            registrationFilterDate.value = '';
-        }
+    registrationFromDate.addEventListener('change', () => {
         renderClients();
         updateSummary();
     });
     
-    registrationFilterDate.addEventListener('change', () => {
+    registrationToDate.addEventListener('change', () => {
         renderClients();
         updateSummary();
     });
@@ -185,10 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initDateFilters() {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
-    activityFilterDate.max = todayStr;
-    registrationFilterDate.max = todayStr;
-    activityFilterDate.disabled = true;
-    registrationFilterDate.disabled = true;
+    
+    activityFromDate.max = todayStr;
+    activityToDate.max = todayStr;
+    registrationFromDate.max = todayStr;
+    registrationToDate.max = todayStr;
 }
 
 function updateBonusSum() {
@@ -365,68 +358,56 @@ function updateSelectAllCheckbox() {
 
 function filterClients() {
     const searchTerm = searchInput.value.toLowerCase();
-    const minDeposit = parseFloat(minDepositFilter.value) || 0;
-    const maxDeposit = parseFloat(maxDepositFilter.value) || Infinity;
-    const minBonus = parseFloat(minBonusFilter.value) || 0;
-    const maxBonus = parseFloat(maxBonusFilter.value) || Infinity;
-    const minHours = parseFloat(minHoursFilter.value) || 0;
-    const maxHours = parseFloat(maxHoursFilter.value) || Infinity;
-    const minDiscount = parseFloat(minDiscountFilter.value) || 0;
-    const maxDiscount = parseFloat(maxDiscountFilter.value) || 100;
-
-    const activityType = activityFilterType.value;
-    const activityDate = activityFilterDate.value ? new Date(activityFilterDate.value) : null;
-    const registrationType = registrationFilterType.value;
-    const registrationDate = registrationFilterDate.value ? new Date(registrationFilterDate.value) : null;
-
-    if (activityType === 'before' && activityDate) {
-        activityDate.setHours(23, 59, 59, 999);
-    }
     
-    if (registrationType === 'before' && registrationDate) {
-        registrationDate.setHours(23, 59, 59, 999);
-    }
+    const minDeposit = minDepositFilter.value ? parseFloat(minDepositFilter.value) : null;
+    const maxDeposit = maxDepositFilter.value ? parseFloat(maxDepositFilter.value) : null;
+    const minBonus = minBonusFilter.value ? parseFloat(minBonusFilter.value) : null;
+    const maxBonus = maxBonusFilter.value ? parseFloat(maxBonusFilter.value) : null;
+    const minHours = minHoursFilter.value ? parseFloat(minHoursFilter.value) : null;
+    const maxHours = maxHoursFilter.value ? parseFloat(maxHoursFilter.value) : null;
+    const minDiscount = minDiscountFilter.value ? parseFloat(minDiscountFilter.value) : null;
+    const maxDiscount = maxDiscountFilter.value ? parseFloat(maxDiscountFilter.value) : null;
+    
+    const activityFrom = activityFromDate.value ? new Date(activityFromDate.value) : null;
+    const activityTo = activityToDate.value ? new Date(activityToDate.value + 'T23:59:59') : null;
+    
+    const registrationFrom = registrationFromDate.value ? new Date(registrationFromDate.value) : null;
+    const registrationTo = registrationToDate.value ? new Date(registrationToDate.value + 'T23:59:59') : null;
     
     return clients.filter(client => {
-        const matchesSearch = !searchTerm || 
-            (client.first_name && client.first_name.toLowerCase().includes(searchTerm)) ||
-            (client.last_name && client.last_name.toLowerCase().includes(searchTerm)) ||
-            (client.phone && client.phone.includes(searchTerm)) ||
-            (client.nickname && client.nickname.toLowerCase().includes(searchTerm));
-        const matchesDeposit = client.deposit >= minDeposit && client.deposit <= maxDeposit;
+        const matchesSearch = (client.first_name && client.first_name.toLowerCase().includes(searchTerm)) ||
+                             (client.last_name && client.last_name.toLowerCase().includes(searchTerm)) ||
+                             (client.phone && client.phone.toLowerCase().includes(searchTerm)) ||
+                             (client.nickname && client.nickname.toLowerCase().includes(searchTerm));
+        const matchesDeposit = (minDeposit === null || client.deposit >= minDeposit) && 
+                              (maxDeposit === null || client.deposit <= maxDeposit);
         const clientBonus = client.bonus || 0;
-        const matchesBonus = clientBonus >= minBonus && clientBonus <= maxBonus;
-        const matchesHours = client.total_hours >= minHours && client.total_hours <= maxHours;
-        const matchesDiscount = client.user_discount >= minDiscount && client.user_discount <= maxDiscount;
-        let matchesActivity = true;
-        if (activityType !== 'none' && activityDate) {
-            if (client.last_client_activity) {
-                const clientActivityDate = new Date(client.last_client_activity);
-                if (activityType === 'before' && clientActivityDate > activityDate) {
-                    matchesActivity = false;
-                } else if (activityType === 'after' && clientActivityDate < activityDate) {
-                    matchesActivity = false;
-                }
-            } else {
-                matchesActivity = false;
-            }
-        }
-
-        let matchesRegistration = true;
-        if (registrationType !== 'none' && registrationDate) {
-            if (client.created_at) {
-                const clientRegistrationDate = new Date(client.created_at);
-                if (registrationType === 'before' && clientRegistrationDate > registrationDate) {
-                    matchesRegistration = false;
-                } else if (registrationType === 'after' && clientRegistrationDate < registrationDate) {
-                    matchesRegistration = false;
-                }
-            } else {
-                matchesRegistration = false;
-            }
+        const matchesBonus = (minBonus === null || clientBonus >= minBonus) && 
+                            (maxBonus === null || clientBonus <= maxBonus);
+        const matchesHours = (minHours === null || client.total_hours >= minHours) && 
+                            (maxHours === null || client.total_hours <= maxHours);
+        const matchesDiscount = (minDiscount === null || client.user_discount >= minDiscount) && 
+                               (maxDiscount === null || client.user_discount <= maxDiscount);
+        
+        let matchesActivityDate = true;
+        if (client.last_client_activity) {
+            const activityDate = new Date(client.last_client_activity);
+            if (activityFrom && activityDate < activityFrom) matchesActivityDate = false;
+            if (activityTo && activityDate > activityTo) matchesActivityDate = false;
+        } else if (activityFrom || activityTo) {
+            matchesActivityDate = false;
         }
         
-        return matchesSearch && matchesDeposit && matchesBonus && matchesHours && matchesDiscount && matchesActivity && matchesRegistration;
+        let matchesRegistrationDate = true;
+        if (client.created_at) {
+            const registrationDate = new Date(client.created_at);
+            if (registrationFrom && registrationDate < registrationFrom) matchesRegistrationDate = false;
+            if (registrationTo && registrationDate > registrationTo) matchesRegistrationDate = false;
+        } else if (registrationFrom || registrationTo) {
+            matchesRegistrationDate = false;
+        }
+        
+        return matchesSearch && matchesDeposit && matchesBonus && matchesHours && matchesDiscount && matchesActivityDate && matchesRegistrationDate;
     });
 }
 
