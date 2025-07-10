@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Мощности Электроэнергии</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind CSS for dark mode and custom colors if needed
+        tailwind.config = {
+            darkMode: 'class', // Enable dark mode based on 'dark' class on html element
+            theme: {
+                extend: {
+                    colors: {
+                        // Define custom colors to match previous variables if necessary
+                        // For example, 'primary' could be 'blue-600'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans m-0 p-0 bg-gray-100 text-gray-900 flex flex-col items-center justify-center min-h-screen p-4 dark:bg-gray-900 dark:text-gray-100">
+    <div class="w-full max-w-3xl mx-auto my-8 bg-white rounded-md shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="p-6 text-center">
+            <h1 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">Калькулятор Мощности Электроэнергии</h1>
+            <p class="text-base text-gray-600 dark:text-gray-400">
+                Рассчитайте необходимую электрическую мощность для вашего компьютерного клуба.
+            </p>
+        </div>
+        <div class="p-6 grid gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col">
+                    <label for="num-pcs" class="text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">Количество ПК (включая админский)</label>
+                    <input id="num-pcs" type="number" value="20" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-900 outline-none focus:border-blue-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-blue-400">
+                    <p class="text-sm text-gray-600 mt-1 dark:text-gray-400">~0.8 кВт на ПК</p>
+                </div>
+                <div class="flex flex-col">
+                    <label for="num-refrigerators" class="text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">Количество холодильников</label>
+                    <input id="num-refrigerators" type="number" value="3" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-900 outline-none focus:border-blue-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-blue-400">
+                    <p class="text-sm text-gray-600 mt-1 dark:text-gray-400">~0.5 кВт на холодильник</p>
+                </div>
+                <div class="flex flex-col">
+                    <label for="num-air-conditioners" class="text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">Количество кондиционеров</label>
+                    <input id="num-air-conditioners" type="number" value="10" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-900 outline-none focus:border-blue-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-blue-400">
+                    <p class="text-sm text-gray-600 mt-1 dark:text-gray-400">~2.5 кВт на кондиционер (примерно)</p>
+                </div>
+                <div class="flex flex-col">
+                    <label for="lighting-power" class="text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">Мощность освещения (кВт)</label>
+                    <input id="lighting-power" type="number" step="0.1" value="1.0" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-900 outline-none focus:border-blue-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-blue-400">
+                </div>
+                <div class="flex flex-col">
+                    <label for="ventilation-power" class="text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">Мощность вентиляции/отопления (кВт)</label>
+                    <input id="ventilation-power" type="number" step="0.1" value="8.0" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-900 outline-none focus:border-blue-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-blue-400">
+                    <p class="text-sm text-gray-600 mt-1 dark:text-gray-400">~8 кВт для 21 человека (зимой)</p>
+                </div>
+            </div>
+
+            <hr class="h-px bg-gray-200 my-4 dark:bg-gray-700">
+
+            <h3 class="text-lg font-bold text-left text-gray-900 dark:text-gray-100">Бытовая техника</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="has-kettle" checked class="sr-only peer">
+                    <div class="relative w-10 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors duration-300
+                                after:content-[''] after:absolute after:left-1 after:top-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform after:duration-300
+                                peer-checked:after:translate-x-4">
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Чайник (1.5 кВт)</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="has-microwave" checked class="sr-only peer">
+                    <div class="relative w-10 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors duration-300
+                                after:content-[''] after:absolute after:left-1 after:top-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform after:duration-300
+                                peer-checked:after:translate-x-4">
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Микроволновка (0.7 кВт)</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="has-coffee-machine" class="sr-only peer">
+                    <div class="relative w-10 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors duration-300
+                                after:content-[''] after:absolute after:left-1 after:top-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform after:duration-300
+                                peer-checked:after:translate-x-4">
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Кофемашина (1.0 кВт)</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="checkbox" id="has-hot-dog-grill" class="sr-only peer">
+                    <div class="relative w-10 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-600 transition-colors duration-300
+                                after:content-[''] after:absolute after:left-1 after:top-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform after:duration-300
+                                peer-checked:after:translate-x-4">
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-100">Гриль для хот-догов (1.5 кВт)</span>
+                </label>
+            </div>
+        </div>
+        <div class="p-6 flex justify-center border-t border-gray-200 dark:border-gray-700">
+            <div class="text-center">
+                <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Общая расчетная мощность: <span id="total-power" class="text-blue-600 dark:text-blue-400">0.00</span> кВт
+                </p>
+                <p class="text-sm text-gray-600 mt-2 dark:text-gray-400">
+                    Это максимальное потребление. Убедитесь, что ваша выделенная мощность соответствует этому значению.
+                </p>
+                <p class="text-xs text-gray-500 mt-4 dark:text-gray-400">
+                    Все расчеты являются приблизительными. Для точного определения необходимой мощности рекомендуется проконсультироваться с квалифицированным электриком.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PC_POWER_PER_UNIT = 0.8; // kW
+        const REFRIGERATOR_POWER_PER_UNIT = 0.5; // kW
+        const KETTLE_POWER = 1.5; // kW
+        const MICROWAVE_POWER = 0.7; // kW
+        const COFFEE_MACHINE_POWER = 1.0; // kW
+        const HOT_DOG_GRILL_POWER = 1.5; // kW
+        const DEFAULT_VENTILATION_POWER = 8.0; // kW
+        const DEFAULT_LIGHTING_POWER = 1.0; // kW
+        const AC_POWER_PER_UNIT = 2.5; // kW
+
+        // State variables
+        let numPCs = 20;
+        let numRefrigerators = 3;
+        let numAirConditioners = 10;
+        let hasKettle = true;
+        let hasMicrowave = true;
+        let hasCoffeeMachine = false;
+        let hasHotDogGrill = false;
+        let lightingPower = DEFAULT_LIGHTING_POWER;
+        let ventilationPower = DEFAULT_VENTILATION_POWER;
+
+        // Get DOM elements
+        const numPCsInput = document.getElementById('num-pcs');
+        const numRefrigeratorsInput = document.getElementById('num-refrigerators');
+        const numAirConditionersInput = document.getElementById('num-air-conditioners');
+        const lightingPowerInput = document.getElementById('lighting-power');
+        const ventilationPowerInput = document.getElementById('ventilation-power');
+        const hasKettleSwitch = document.getElementById('has-kettle');
+        const hasMicrowaveSwitch = document.getElementById('has-microwave');
+        const hasCoffeeMachineSwitch = document.getElementById('has-coffee-machine');
+        const hasHotDogGrillSwitch = document.getElementById('has-hot-dog-grill');
+        const totalPowerDisplay = document.getElementById('total-power');
+
+        // Function to calculate total power
+        function calculateTotalPower() {
+            let currentTotal = 0;
+
+            currentTotal += numPCs * PC_POWER_PER_UNIT;
+            currentTotal += numRefrigerators * REFRIGERATOR_POWER_PER_UNIT;
+            currentTotal += numAirConditioners * AC_POWER_PER_UNIT;
+
+            if (hasKettle) currentTotal += KETTLE_POWER;
+            if (hasMicrowave) currentTotal += MICROWAVE_POWER;
+            if (hasCoffeeMachine) currentTotal += COFFEE_MACHINE_POWER;
+            if (hasHotDogGrill) currentTotal += HOT_DOG_GRILL_POWER;
+
+            currentTotal += lightingPower;
+            currentTotal += ventilationPower;
+
+            return currentTotal;
+        }
+
+        // Function to render (update) the UI
+        function render() {
+            numPCsInput.value = numPCs;
+            numRefrigeratorsInput.value = numRefrigerators;
+            numAirConditionersInput.value = numAirConditioners;
+            lightingPowerInput.value = lightingPower;
+            ventilationPowerInput.value = ventilationPower;
+            hasKettleSwitch.checked = hasKettle;
+            hasMicrowaveSwitch.checked = hasMicrowave;
+            hasCoffeeMachineSwitch.checked = hasCoffeeMachine;
+            hasHotDogGrillSwitch.checked = hasHotDogGrill;
+
+            const total = calculateTotalPower();
+            totalPowerDisplay.textContent = total.toFixed(2);
+        }
+
+        // Event Listeners
+        numPCsInput.addEventListener('input', (e) => {
+            numPCs = Number(e.target.value);
+            render();
+        });
+        numRefrigeratorsInput.addEventListener('input', (e) => {
+            numRefrigerators = Number(e.target.value);
+            render();
+        });
+        numAirConditionersInput.addEventListener('input', (e) => {
+            numAirConditioners = Number(e.target.value);
+            render();
+        });
+        lightingPowerInput.addEventListener('input', (e) => {
+            lightingPower = Number(e.target.value);
+            render();
+        });
+        ventilationPowerInput.addEventListener('input', (e) => {
+            ventilationPower = Number(e.target.value);
+            render();
+        });
+        hasKettleSwitch.addEventListener('change', (e) => {
+            hasKettle = e.target.checked;
+            render();
+        });
+        hasMicrowaveSwitch.addEventListener('change', (e) => {
+            hasMicrowave = e.target.checked;
+            render();
+        });
+        hasCoffeeMachineSwitch.addEventListener('change', (e) => {
+            hasCoffeeMachine = e.target.checked;
+            render();
+        });
+        hasHotDogGrillSwitch.addEventListener('change', (e) => {
+            hasHotDogGrill = e.target.checked;
+            render();
+        });
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
